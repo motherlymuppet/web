@@ -1,0 +1,22 @@
+{
+  "name": "web-programming-assignment",
+  "version": "0.0.1",
+  "description": "My web programming assignment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/motherlymuppet/web.git"
+  },
+  "author": "Steven Lowes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/motherlymuppet/web/issues"
+  },
+  "homepage": "https://github.com/motherlymuppet/web#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}

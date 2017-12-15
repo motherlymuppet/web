@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Events Assignment</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+            <a class="navbar-brand" href="#">Events Website</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <main role="main" class="container">
+            <br><br><br>
+            <h1>Search for Events</h1>
+            <br>
+            <form>
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label for="search">
+                            <h3>Title Search</h3>
+                        </label>
+                        <input type="text" class="form-control" id="search" placeholder="Search">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="date">
+                            <h3>Date</h3>
+                        </label>
+                        <input type="date" id="date" class="form-control">
+                    </div>
+                    <div class="col-sm-2">
+                        <br><br>
+                        <button id="updateButton" type="button" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </form>
+            <div id="events"></div>
+            <div class="modal fade" id="eventModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Event Details</h5>
+                        </div>
+                        <div class="modal-body">
+                            <h2 id="modalTitle">Title</h2>
+                            <h4 id="modalDate">Date</h4>
+                            <p id="modalBlurb">Blurb</p>
+                            <a id="modalWebsiteLink" href="http://example.com">
+                                <h4 id="modalWebsite">Website</h4>
+                            </a>
+                            <br>
+                            <h2>Venue</h2>
+                            <h4 id="modalVenueName">Venue Name</h4>
+                            <h6 id="modalVenuePostcode">Postcode</h6>
+                            <h6 id="modalVenueTown">Town</h6>
+                            <a id="modalVenueWebsiteLink" href="http://example.com">
+                                <h6 id="modalVenueWebsite">
+                                Website</h4>
+                            </a>
+                            <img id="modalVenueIcon" src="http://icon.png" class="rounded mx-auto d-block">					
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+		
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+		
+		<script>		
+			$(function(){
+				var BASE = '/events2017/'
+			
+				$('#updateButton').click(function() {
+					var url = BASE + 'events/search/'
+					var search = $('#search').val()
+					var date = $('#date').val()
+					if(search || date){
+						url = url + '?'
+					}
+					if(search){
+						url = url + 'search=' + search
+					}
+					if(date){
+						url = url + '&date=' + date
+					}
+					
+					$.getJSON(url, function(data){
+						console.log(data)
+						var div = $('#events')
+						div.empty()
+						data.forEach(function(event){
+							var date = new Date(Date.parse(event.date))
+							div.append('<a href="#eventModal" data-toggle="modal" data-target="#eventModal"><div class="card"><div class="card-body"><h4 class="card-title">'+event.title+'</h4><h6>'+date+'</h6><p class="card-text">'+event.blurb+'</p></div></div></a>')
+						})
+					});
+				});
+			});
+		</script>
+    </body>
+</html>
