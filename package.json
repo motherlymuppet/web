@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/motherlymuppet/web#readme",
   "dependencies": {
-    "express": "^4.16.2"
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "requestify": "^0.2.5"
   }
 }

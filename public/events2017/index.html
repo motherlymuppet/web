@@ -10,17 +10,17 @@
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-            <a class="navbar-brand" href="#">Events Website</a>
+            <a class="navbar-brand" href="/">Events Website</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link" href="/events2017/">Home</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Admin</a>
+                        <a class="nav-link" href="/events2017/admin">Admin</a>
                     </li>
                 </ul>
             </div>
@@ -49,7 +49,8 @@
                     </div>
                 </div>
             </form>
-            <div id="events"></div>
+            <div id="events" class="row"></div>
+			<br><br><br><br>
             <div class="modal fade" id="eventModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -66,13 +67,13 @@
                             <br>
                             <h2>Venue</h2>
                             <h4 id="modalVenueName">Venue Name</h4>
-                            <h6 id="modalVenuePostcode">Postcode</h6>
+                            <h5 id="modalVenuePostcode">Postcode</h5>
                             <h6 id="modalVenueTown">Town</h6>
                             <a id="modalVenueWebsiteLink" href="http://example.com">
                                 <h6 id="modalVenueWebsite">
-                                Website</h4>
+                                Website</h6>
                             </a>
-                            <img id="modalVenueIcon" src="http://icon.png" class="rounded mx-auto d-block">					
+                            <img id="modalVenueIcon" src="http://icon.png" class="img-fluid">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -91,6 +92,10 @@
 				var BASE = '/events2017/'
 			
 				$('#updateButton').click(function() {
+					update()
+				})
+				
+				function update(){
 					var url = BASE + 'events/search/'
 					var search = $('#search').val()
 					var date = $('#date').val()
@@ -105,16 +110,34 @@
 					}
 					
 					$.getJSON(url, function(data){
-						console.log(data)
 						var div = $('#events')
 						div.empty()
 						data.forEach(function(event){
 							var date = new Date(Date.parse(event.date))
-							div.append('<a href="#eventModal" data-toggle="modal" data-target="#eventModal"><div class="card"><div class="card-body"><h4 class="card-title">'+event.title+'</h4><h6>'+date+'</h6><p class="card-text">'+event.blurb+'</p></div></div></a>')
+							div.append('<div class="col-sm-4"><a id="card_'+event.event_id+'" href="javascript:void(0);"><div class="card"><div class="card-body"><h4 class="card-title">'+event.title+'</h4><h6>'+date+'</h6><p class="card-text">'+event.blurb+'</p></div></div></a><br></div>')
+							$('#card_'+event.event_id).click(function(e){
+								e.preventDefault()
+								selectEvent(event, date)
+							})
 						})
-					});
-				});
-			});
+					})
+				}
+				
+				function selectEvent(event, date) {
+					$('#modalTitle').text(event.title)
+					$('#modalDate').text(date)
+					$('#modalBlurb').text(event.blurb)
+					$('#modalWebsiteLink').attr('href', event.url)
+					$('#modalVenueName').text(event.venue.name)
+					$('#modalVenuePostcode').text(event.venue.postcode)
+					$('#modalVenueTown').text(event.venue.town)
+					$('#modalVenueWebsiteLink').attr('href', event.venue.url)
+					$('#modalVenueIcon').attr('src', event.venue.icon)
+					$('#eventModal').modal('show');
+				}
+				
+				update()
+			})
 		</script>
     </body>
 </html>

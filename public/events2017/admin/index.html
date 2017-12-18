@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Events Assignment</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+            <a class="navbar-brand" href="/">Events Website</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/events2017/">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/events2017/admin">Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <main role="main" class="container">
+            <br><br><br>
+            <h1>Admin Panel</h1>
+            <br>
+            <h2>Venues <button id="showAddVenueModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#addVenueModal">Add Venue</button></h2>
+			<div id="venues" class="row"></div>
+			<br><br><br><br>
+			
+			<div class="modal fade" id="addVenueModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">New Venue</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+								<div class="form-group">
+									<label for="newVenueName">Venue Name</label>
+									<input type="text" class="form-control" id="newVenueName" placeholder="Name">
+									
+									<label for="newVenueTown">Venue Town</label>
+									<input type="text" class="form-control" id="newVenueTown" placeholder="Town">
+									
+									<label for="newVenuePostcode">Venue Postcode</label>
+									<input type="text" class="form-control" id="newVenuePostcode" placeholder="Postcode">
+									
+									<label for="newVenueWebsite">Venue Website</label>
+									<input type="text" class="form-control" id="newVenueWebsite" placeholder="Website">
+									
+									<label for="newVenueIconURL">Venue Icon URL</label>
+									<input type="text" class="form-control" id="newVenueIconURL" placeholder="Icon URL">
+									
+									<br>
+									<button id="addVenueButton" type="button" class="btn btn-primary">Submit</button>
+								</div>
+							</form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			
+			<div class="modal fade" id="eventModal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">New Event</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+								<div class="form-group">
+									<label for="newEventTitle">Event Title</label>
+									<input type="text" class="form-control" id="newEventTitle" placeholder="Title">
+									
+									<label for="newEventBlurb">Event Description</label>
+									<textarea id="newEventBlurb" class="form-control" rows="6"></textarea>
+									
+									<label for="newEventDate">Event Date</label>
+									<input type="date" class="form-control" id="newEventDate">
+									
+									<label for="newEventWebsite">Event Website</label>
+									<input type="text" class="form-control" id="newEventWebsite" placeholder="Website">
+									
+									<br>
+									<button id="addEventButton" type="button" class="btn btn-primary">Submit</button>
+								</div>
+							</form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+		
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+		
+		<script>		
+			$(function(){
+				var BASE = '/events2017/'
+
+				function readCookie(name) {
+					var nameEQ = name + "=";
+					var ca = document.cookie.split(';');
+					for(var i=0;i < ca.length;i++) {
+						var c = ca[i];
+						while (c.charAt(0)==' ') c = c.substring(1,c.length);
+						if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+					}
+					return null;
+				}
+				
+				var authToken = readCookie('auth')
+				var selectedVenue
+				
+				console.log(authToken)
+				if(!authToken){
+					window.location.replace(BASE + 'auth');
+				}
+				
+				$.getJSON(BASE + 'auth/check?token=' + authToken, function(data){
+					console.log(data)
+					if(!data.valid){
+						window.location.replace(BASE + 'auth');
+					}
+				})
+				
+				$('#addVenueButton').click(function() {
+					var data = {}
+					data.auth_token = authToken
+					
+					data.name = $('#newVenueName').val()
+					data.postcode = $('#newVenuePostcode').val()
+					data.town = $('#newVenueTown').val()
+					data.url = $('#newVenueWebsite').val()
+					data.icon = $('#newVenueIconURL').val()
+
+					$.post(BASE + 'venues/add', data, function(response) {
+						updateVenues()
+						
+						$('#addVenueModal').modal('hide');
+						
+						console.log('here')
+						
+						$('#newVenueName').val('')
+						$('#newVenuePostcode').val('')
+						$('#newVenueTown').val('')
+						$('#newVenueWebsite').val('')
+						$('#newVenueIconURL').val('')
+					}, 'json')
+				})
+					
+				function updateVenues(){
+					$.getJSON(BASE + 'venues', function(data){
+						var div = $('#venues')
+						div.empty()
+						var venues = data.venues
+						Object.keys(venues).forEach(function(key){
+						var venue = venues[key]
+						console.log(venue)
+							div.append('<div class="col-sm-4"><a id="card_'+venue.venue_id+'" href="javascript:void(0);"><div class="card"><div class="card-body"><h4 class="card-title">'+venue.name+'</h4><h6>'+venue.postcode+' ('+venue.town+')'+'</h6></div></div></a><br></div>')
+							$('#card_'+venue.venue_id).click(function(e){
+							console.log('here')
+								e.preventDefault()
+								selectVenue(venue)
+							})
+						})
+					})
+				}
+				
+				function selectVenue(venue){
+					selectedVenue = venue
+					$('#eventModal').modal('show');
+				}
+				
+				$('#addEventButton').click(function() {
+					var data = {}
+					data.auth_token = authToken
+					
+					data.title = $('#newEventTitle').val()
+					data.venue_id = selectedVenue.venue_id
+					data.date = $('#newEventDate').val()
+					data.url = $('#newEventWebsite').val()
+					data.blurb = $('#newEventBlurb').val()
+
+					$.post(BASE + 'events/add', data, function(response) {						
+						$('#eventModal').modal('hide');
+						
+						$('#newEventTitle').val('')
+						$('#newEventDate').val('')
+						$('#newEventWebsite').val('')
+						$('#newEventBlurb').val('')
+					}, 'json')
+				})
+				
+				updateVenues()
+			})
+		</script>
+    </body>
+</html>
