@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <meta name="author" content="">
-        <title>Events Assignment</title>
+        <title>Admin Panel</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     </head>
     <body>
@@ -16,7 +16,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="/events2017/">Home</a>
                     </li>
                     <li class="nav-item active">
@@ -29,11 +29,11 @@
             <br><br><br>
             <h1>Admin Panel</h1>
             <br>
-            <h2>Venues <button id="showAddVenueModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#addVenueModal">Add Venue</button></h2>
+            <h2>Venues <button id="showVenueModal" type="button" class="btn btn-success" data-toggle="modal" data-target="#venueModal">Add Venue</button></h2>
 			<div id="venues" class="row"></div>
 			<br><br><br><br>
 			
-			<div class="modal fade" id="addVenueModal" tabindex="-1" role="dialog">
+			<div class="modal fade" id="venueModal" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -87,6 +87,9 @@
 									<label for="newEventDate">Event Date</label>
 									<input type="date" class="form-control" id="newEventDate">
 									
+									<label for="newEventTime">Event Time</label>
+									<input type="time" class="form-control" id="newEventTime">
+									
 									<label for="newEventWebsite">Event Website</label>
 									<input type="text" class="form-control" id="newEventWebsite" placeholder="Website">
 									
@@ -109,70 +112,39 @@
 		
 		<script>		
 			$(function(){
-				var BASE = '/events2017/'
+				$.ajaxSetup({ cache: false });
+			
+				const BASE = '/events2017/'
 
-				function readCookie(name) {
-					var nameEQ = name + "=";
-					var ca = document.cookie.split(';');
-					for(var i=0;i < ca.length;i++) {
-						var c = ca[i];
-						while (c.charAt(0)==' ') c = c.substring(1,c.length);
-						if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-					}
-					return null;
-				}
-				
-				var authToken = readCookie('auth')
 				var selectedVenue
+
+				//https://stackoverflow.com/questions/5639346/what-is-the-shortest-function-for-reading-a-cookie-by-name-in-javascript
+				function readCookie(name) {
+					const b = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+					return b ? b.pop() : '';
+				}
+
+				const authToken = readCookie('auth') //Check authentication and redirect to login if not authenticated
 				
-				console.log(authToken)
 				if(!authToken){
 					window.location.replace(BASE + 'auth');
 				}
 				
-				$.getJSON(BASE + 'auth/check?token=' + authToken, function(data){
-					console.log(data)
+				$.getJSON(BASE + 'auth/check?token=' + authToken, function(data){ //Check that the token we have is actually valid
 					if(!data.valid){
 						window.location.replace(BASE + 'auth');
 					}
 				})
-				
-				$('#addVenueButton').click(function() {
-					var data = {}
-					data.auth_token = authToken
-					
-					data.name = $('#newVenueName').val()
-					data.postcode = $('#newVenuePostcode').val()
-					data.town = $('#newVenueTown').val()
-					data.url = $('#newVenueWebsite').val()
-					data.icon = $('#newVenueIconURL').val()
 
-					$.post(BASE + 'venues/add', data, function(response) {
-						updateVenues()
-						
-						$('#addVenueModal').modal('hide');
-						
-						console.log('here')
-						
-						$('#newVenueName').val('')
-						$('#newVenuePostcode').val('')
-						$('#newVenueTown').val('')
-						$('#newVenueWebsite').val('')
-						$('#newVenueIconURL').val('')
-					}, 'json')
-				})
-					
 				function updateVenues(){
 					$.getJSON(BASE + 'venues', function(data){
-						var div = $('#venues')
+						const div = $('#venues')
 						div.empty()
-						var venues = data.venues
+						const venues = data.venues
 						Object.keys(venues).forEach(function(key){
-						var venue = venues[key]
-						console.log(venue)
+						const venue = venues[key]
 							div.append('<div class="col-sm-4"><a id="card_'+venue.venue_id+'" href="javascript:void(0);"><div class="card"><div class="card-body"><h4 class="card-title">'+venue.name+'</h4><h6>'+venue.postcode+' ('+venue.town+')'+'</h6></div></div></a><br></div>')
 							$('#card_'+venue.venue_id).click(function(e){
-							console.log('here')
 								e.preventDefault()
 								selectVenue(venue)
 							})
@@ -185,13 +157,36 @@
 					$('#eventModal').modal('show');
 				}
 				
+				$('#addVenueButton').click(function() {
+					const data = {}
+					data.auth_token = authToken
+					
+					data.name = $('#newVenueName').val()
+					data.postcode = $('#newVenuePostcode').val()
+					data.town = $('#newVenueTown').val()
+					data.url = $('#newVenueWebsite').val()
+					data.icon = $('#newVenueIconURL').val()
+
+					$.post(BASE + 'venues/add', data, function(response) {
+						updateVenues()
+						
+						$('#venueModal').modal('hide');
+						
+						$('#newVenueName').val('')
+						$('#newVenuePostcode').val('')
+						$('#newVenueTown').val('')
+						$('#newVenueWebsite').val('')
+						$('#newVenueIconURL').val('')
+					}, 'json')
+				})
+				
 				$('#addEventButton').click(function() {
-					var data = {}
+					const data = {}
 					data.auth_token = authToken
 					
 					data.title = $('#newEventTitle').val()
 					data.venue_id = selectedVenue.venue_id
-					data.date = $('#newEventDate').val()
+					data.date = $('#newEventDate').val() + ' ' + $('#newEventTime').val()
 					data.url = $('#newEventWebsite').val()
 					data.blurb = $('#newEventBlurb').val()
 
@@ -200,6 +195,7 @@
 						
 						$('#newEventTitle').val('')
 						$('#newEventDate').val('')
+						$('#newEventTime').val('')
 						$('#newEventWebsite').val('')
 						$('#newEventBlurb').val('')
 					}, 'json')

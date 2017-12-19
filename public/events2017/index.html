@@ -19,7 +19,7 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="/events2017/">Home</a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="/events2017/admin">Admin</a>
                     </li>
                 </ul>
@@ -59,19 +59,19 @@
                         </div>
                         <div class="modal-body">
                             <h2 id="modalTitle">Title</h2>
-                            <h4 id="modalDate">Date</h4>
+                            <h5 id="modalDate">Date</h5>
                             <p id="modalBlurb">Blurb</p>
                             <a id="modalWebsiteLink" href="http://example.com">
-                                <h4 id="modalWebsite">Website</h4>
+                                <h5 id="modalWebsite">Website</h5>
                             </a>
                             <br>
                             <h2>Venue</h2>
                             <h4 id="modalVenueName">Venue Name</h4>
                             <h5 id="modalVenuePostcode">Postcode</h5>
-                            <h6 id="modalVenueTown">Town</h6>
+                            <h5 id="modalVenueTown">Town</h5>
                             <a id="modalVenueWebsiteLink" href="http://example.com">
-                                <h6 id="modalVenueWebsite">
-                                Website</h6>
+                                <h5 id="modalVenueWebsite">
+                                Website</h5>
                             </a>
                             <img id="modalVenueIcon" src="http://icon.png" class="img-fluid">
                         </div>
@@ -89,16 +89,15 @@
 		
 		<script>		
 			$(function(){
-				var BASE = '/events2017/'
-			
-				$('#updateButton').click(function() {
-					update()
-				})
+				$.ajaxSetup({ cache: false });
 				
+				const BASE = '/events2017/'
+
 				function update(){
+					const search = $('#search').val()
+					const date = $('#date').val()
+
 					var url = BASE + 'events/search/'
-					var search = $('#search').val()
-					var date = $('#date').val()
 					if(search || date){
 						url = url + '?'
 					}
@@ -110,11 +109,15 @@
 					}
 					
 					$.getJSON(url, function(data){
-						var div = $('#events')
+						const div = $('#events')
 						div.empty()
 						data.forEach(function(event){
-							var date = new Date(Date.parse(event.date))
-							div.append('<div class="col-sm-4"><a id="card_'+event.event_id+'" href="javascript:void(0);"><div class="card"><div class="card-body"><h4 class="card-title">'+event.title+'</h4><h6>'+date+'</h6><p class="card-text">'+event.blurb+'</p></div></div></a><br></div>')
+							const date = new Date(Date.parse(event.date))
+							var blurb = event.blurb
+							if(blurb.length > 250){
+								blurb = blurb.substring(0,247)+'...'
+							}
+							div.append('<div class="col-sm-4"><a id="card_'+event.event_id+'" href="javascript:void(0);"><div class="card"><div class="card-body"><h4 class="card-title">'+event.title+'</h4><h6>'+date+'</h6><h5>'+event.venue.name+'</h5><p class="card-text">'+blurb+'</p></div></div></a><br></div>')
 							$('#card_'+event.event_id).click(function(e){
 								e.preventDefault()
 								selectEvent(event, date)
@@ -135,6 +138,10 @@
 					$('#modalVenueIcon').attr('src', event.venue.icon)
 					$('#eventModal').modal('show');
 				}
+			
+				$('#updateButton').click(function() {
+					update()
+				})
 				
 				update()
 			})
