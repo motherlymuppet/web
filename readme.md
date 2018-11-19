@@ -1,13 +1,4 @@
-Video:
-
-The video is too large to upload to DUO.
-
-You can download it here:
-
-
-Or just stream it here:
-
-
+A nodejs backend and jquery frontend with AJAX calls for an events-hosting website
 
 Bluemix
 
